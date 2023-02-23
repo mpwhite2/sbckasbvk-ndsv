@@ -27,7 +27,7 @@ function CreateQueen (Col: number, Row: number) {
     QueenHP = statusbars.create(20, 2, StatusBarKind.EnemyHealth)
     QueenHP.setColor(2, 13)
     QueenHP.max = 30
-    Queen.follow(mySprite2, 50)
+    Queen.follow(mySprite2, 40)
     QueenHP.attachToSprite(Queen)
     tiles.placeOnTile(Queen, tiles.getTileLocation(Col, Row))
     Queen.setFlag(SpriteFlag.GhostThroughWalls, true)
@@ -227,6 +227,7 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Wasp, function (sprite, othe
 })
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, otherSprite) {
     statusbars.getStatusBarAttachedTo(StatusBarKind.EnemyHealth, otherSprite).value += -1
+    music.play(music.randomizeSound(music.createSoundEffect(WaveShape.Sine, 1, 3183, 0, 64, 500, SoundExpressionEffect.Warble, InterpolationCurve.Linear)), music.PlaybackMode.InBackground)
     sprites.destroy(sprite)
     info.changeScoreBy(1)
 })
