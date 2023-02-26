@@ -104,20 +104,14 @@ controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
 })
 scene.onOverlapTile(SpriteKind.Projectile, assets.tile`myTile0`, function (sprite, location) {
     CreateQueen(location.column, location.row)
-    for (let index = 0; index < 10; index++) {
-        CreateWasp(location.column, location.row)
-        pause(100)
-    }
     tiles.setTileAt(location, assets.tile`myTile1`)
+    timer.background(function () {
+        for (let index = 0; index < 20; index++) {
+            CreateWasp(location.column, location.row)
+            pause(500)
+        }
+    })
 })
-function EndQuest () {
-    IsGameRunning = false
-    tiles.setCurrentTilemap(null)
-    sprites.destroyAllSpritesOfKind(SpriteKind.Player)
-    sprites.destroyAllSpritesOfKind(SpriteKind.Enemy)
-    sprites.destroyAllSpritesOfKind(SpriteKind.Wasp)
-    sprites.destroyAllSpritesOfKind(SpriteKind.Projectile)
-}
 sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Player, function (sprite, otherSprite) {
     info.changeLifeBy(-1)
     PlayerHealth.value += -1
@@ -191,6 +185,10 @@ function startQuest () {
         `, SpriteKind.Player)
     mySprite2.setFlag(SpriteFlag.Ghost, true)
 }
+sprites.onOverlap(SpriteKind.Wasp, SpriteKind.Wasp, function (sprite, otherSprite) {
+    sprite.x += randint(-3, 3)
+    otherSprite.y += randint(-3, 3)
+})
 controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
     setDir(d)
     d = true
@@ -202,6 +200,7 @@ function Quest1 () {
     tiles.setCurrentTilemap(tilemap`Enter`)
     tiles.placeOnTile(mySprite, tiles.getTileLocation(48, 13))
     Quest = 1
+    blockSettings.writeNumber("1", 1)
 }
 function ShowMenu1 () {
     story.showPlayerChoices("Enter Wasp territory", "More Quests will appear here soon")
@@ -209,13 +208,15 @@ function ShowMenu1 () {
         story.showPlayerChoices("Enter Wasp territory", "More Quests will appear here soon")
     }
     if (story.checkLastAnswer("Enter Wasp territory")) {
-        if (Quest1c == 0) {
+        if (!(blockSettings.exists("1"))) {
             story.printCharacterText("Are you ready, " + blockSettings.readString("Name") + "? ")
             startQuest()
             Quest1()
             story.printCharacterText("You must cross the bridge and destroy the nest, but watch out for the Queen!")
         } else {
             story.showPlayerChoices("Enter Wasp territory", "More Quests will appear here soon")
+            game.reset()
+            ShowMenu1()
         }
     }
 }
@@ -253,10 +254,18 @@ let mySprite2: Sprite = null
 let QueenHP: StatusBarSprite = null
 let Queen: Sprite = null
 let IsGameRunning = false
-let Quest1c = 0
 let Quest = 0
+music.play(music.createSong(assets.song`mySong`), music.PlaybackMode.LoopingInBackground)
+pause(100)
+if (controller.B.isPressed()) {
+    story.showPlayerChoices("Reset data?", "No! Keep my data!")
+    if (story.checkLastAnswer("Reset data?")) {
+        color.startFade(color.Black, color.Arcade, 1000)
+        blockSettings.clear()
+        game.reset()
+    }
+}
 Quest = null
-Quest1c = 0
 IsGameRunning = false
 if (game.ask("Input a name?") || !(blockSettings.exists("Name"))) {
     blockSettings.writeString("Name", game.askForString("Please input a name", 12))
@@ -280,13 +289,7 @@ game.onUpdateInterval(2000, function () {
 })
 game.onUpdateInterval(1000, function () {
     if (IsGameRunning && sprites.allOfKind(SpriteKind.Wasp).length + sprites.allOfKind(SpriteKind.Enemy).length == 0) {
-        EndQuest()
-        IsGameRunning = false
-        if (Quest == 1) {
-            Quest1c = 1
-        }
-        ShowMenu1()
-        story.printCharacterText("Great job, Adventurer!")
+        game.reset()
     }
 })
 game.onUpdateInterval(500, function () {

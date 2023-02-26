@@ -9,7 +9,8 @@
         "multiplayer": "*",
         "Color Fading": "github:jwunderl/pxt-color#v0.2.2",
         "arcade-story": "github:microsoft/arcade-storytelling#v1.0.3",
-        "pxt-status-bar": "github:jwunderl/pxt-status-bar#v0.4.2"
+        "pxt-status-bar": "github:jwunderl/pxt-status-bar#v0.4.2",
+        "Timers": "github:microsoft/arcade-timers#v1.1.0"
     },
     "files": [
         "main.blocks",
@@ -25,7 +26,7 @@
         "test.ts"
     ],
     "targetVersions": {
-        "target": "1.12.21",
+        "target": "1.12.22",
         "targetId": "arcade"
     },
     "supportedTargets": [
