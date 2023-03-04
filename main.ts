@@ -73,6 +73,15 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     setDir(u)
     u = true
 })
+spriteutils.onSpriteKindUpdateInterval(SpriteKind.Wasp, 100, function (sprite) {
+    if (spriteutils.getSpritesWithin(SpriteKind.Projectile, 60, sprite).length > 0) {
+        sprite.follow(mySprite2, 0)
+        spriteutils.setVelocityAtAngle(sprite, randint(0, 360), 20)
+        timer.after(500, function () {
+            sprite.follow(mySprite, 50)
+        })
+    }
+})
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     if (IsGameRunning) {
         if (u == true) {
@@ -226,6 +235,16 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Wasp, function (sprite, othe
     info.changeScoreBy(1)
     music.play(music.randomizeSound(music.createSoundEffect(WaveShape.Sine, 1, 2381, 0, 140, 500, SoundExpressionEffect.Warble, InterpolationCurve.Curve)), music.PlaybackMode.InBackground)
 })
+spriteutils.onSpriteKindUpdateInterval(SpriteKind.Enemy, 100, function (sprite) {
+    timer.background(function () {
+        if (spriteutils.getSpritesWithin(SpriteKind.Projectile, 40, sprite).length > 0) {
+            sprite.follow(mySprite2, 0)
+            spriteutils.setVelocityAtAngle(sprite, 0 - spriteutils.angleFrom(sprite, spriteutils.getSpritesWithin(SpriteKind.Projectile, 40, sprite)._pickRandom()) + randint(-60, 60), 50)
+            pause(500)
+            sprite.follow(mySprite, 40)
+        }
+    })
+})
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, otherSprite) {
     statusbars.getStatusBarAttachedTo(StatusBarKind.EnemyHealth, otherSprite).value += -1
     music.play(music.randomizeSound(music.createSoundEffect(WaveShape.Sine, 1, 3183, 0, 64, 500, SoundExpressionEffect.Warble, InterpolationCurve.Linear)), music.PlaybackMode.InBackground)
@@ -241,9 +260,9 @@ let location1: tiles.Location = null
 let WaspRate = 0
 let TargetY = 0
 let TargetX = 0
-let mySprite: Sprite = null
 let projectile: Sprite = null
 let PlayerHealth: StatusBarSprite = null
+let mySprite: Sprite = null
 let dir = false
 let d = false
 let l = false
