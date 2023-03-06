@@ -74,6 +74,7 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     u = true
 })
 spriteutils.onSpriteKindUpdateInterval(SpriteKind.Wasp, 100, function (sprite) {
+    sprite.follow(mySprite2, 50)
     if (spriteutils.getSpritesWithin(SpriteKind.Projectile, 60, sprite).length > 0) {
         sprite.follow(mySprite2, 0)
         spriteutils.setVelocityAtAngle(sprite, randint(0, 360), 20)
@@ -246,9 +247,13 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Wasp, function (sprite, othe
 })
 spriteutils.onSpriteKindUpdateInterval(SpriteKind.Enemy, 100, function (sprite) {
     timer.background(function () {
-        if (spriteutils.getSpritesWithin(SpriteKind.Projectile, 80, sprite).length > 0) {
+        if (sprites.allOfKind(SpriteKind.Wasp).length == 0) {
+            Num = 60
+            sprite.follow(mySprite2, 75,1000)
+        }
+        if (spriteutils.getSpritesWithin(SpriteKind.Projectile, 80, sprite).length > 0 && spriteutils.getSpritesWithin(SpriteKind.Wasp, 20, sprite).length > 0) {
             if (spriteutils.getSpritesWithin(SpriteKind.Wasp, 50, sprite).length > 0) {
-                spriteutils.getSpritesWithin(SpriteKind.Wasp, 50, sprite)._pickRandom().follow(spriteutils.getSpritesWithin(SpriteKind.Projectile, 80, sprite)._pickRandom())
+                spriteutils.getSpritesWithin(SpriteKind.Wasp, 20, sprite)._pickRandom().follow(spriteutils.getSpritesWithin(SpriteKind.Projectile, 80, sprite)._pickRandom())
             } else {
                 sprite.follow(mySprite2, 0)
                 spriteutils.setVelocityAtAngle(sprite, 0 - spriteutils.angleFrom(sprite, spriteutils.getSpritesWithin(SpriteKind.Projectile, 40, sprite)._pickRandom()) + randint(-30, 30), 60)
@@ -287,6 +292,8 @@ let QueenHP: StatusBarSprite = null
 let Queen: Sprite = null
 let IsGameRunning = false
 let Quest = 0
+let Num = 0
+Num = 30
 music.play(music.createSong(assets.song`mySong`), music.PlaybackMode.LoopingInBackground)
 pause(100)
 if (controller.B.isPressed()) {
@@ -326,6 +333,6 @@ game.onUpdateInterval(1000, function () {
 })
 game.onUpdateInterval(500, function () {
     if (IsGameRunning) {
-        mySprite2.setPosition(mySprite.x + randint(-30, 30), mySprite.y + randint(-30, 30))
+        mySprite2.setPosition(mySprite.x + randint(0 - Num, Num), mySprite.y + randint(0 - Num, Num))
     }
 })
