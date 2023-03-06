@@ -30,13 +30,13 @@ function CreateQueen (Col: number, Row: number) {
     Queen.follow(mySprite2, 40)
     QueenHP.attachToSprite(Queen)
     tiles.placeOnTile(Queen, tiles.getTileLocation(Col, Row))
-    Queen.setFlag(SpriteFlag.GhostThroughWalls, true)
+    Queen.setFlag(SpriteFlag.GhostThroughTiles, true)
 }
 function CreateWasp (C: number, R: number) {
     Wasp2 = sprites.create(assets.image`Wasp`, SpriteKind.Wasp)
     tiles.placeOnTile(Wasp2, tiles.getTileLocation(C, R))
     Wasp2.follow(mySprite2, 50)
-    Wasp2.setFlag(SpriteFlag.GhostThroughWalls, true)
+    Wasp2.setFlag(SpriteFlag.GhostThroughTiles, true)
     characterAnimations.loopFrames(
     Wasp2,
     assets.animation`Flying up or down`,
@@ -148,7 +148,7 @@ function startQuest () {
     PlayerHealth.max = 100
     PlayerHealth.attachToSprite(mySprite)
     PlayerHealth.setColor(4, 13)
-    controller.moveSprite(mySprite)
+    controller.moveSprite(mySprite, 80, 80)
     scene.cameraFollowSprite(mySprite)
     characterAnimations.loopFrames(
     mySprite,
@@ -194,6 +194,13 @@ function startQuest () {
         `, SpriteKind.Player)
     mySprite2.setFlag(SpriteFlag.Ghost, true)
 }
+function Enable_movment (Bool: boolean) {
+    if (Bool) {
+        controller.moveSprite(mySprite, 80, 80)
+    } else {
+        controller.moveSprite(mySprite, 0, 0)
+    }
+}
 sprites.onOverlap(SpriteKind.Wasp, SpriteKind.Wasp, function (sprite, otherSprite) {
     sprite.x += randint(-3, 3)
     otherSprite.y += randint(-3, 3)
@@ -218,10 +225,12 @@ function ShowMenu1 () {
     }
     if (story.checkLastAnswer("Enter Wasp territory")) {
         if (!(blockSettings.exists("1"))) {
-            story.printCharacterText("Are you ready, " + blockSettings.readString("Name") + "? ")
             startQuest()
             Quest1()
+            Enable_movment(false)
+            story.printCharacterText("Are you ready, " + blockSettings.readString("Name") + "? ")
             story.printCharacterText("You must cross the bridge and destroy the nest, but watch out for the Queen!")
+            Enable_movment(true)
         } else {
             story.showPlayerChoices("Enter Wasp territory", "More Quests will appear here soon")
             game.reset()
@@ -237,11 +246,15 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Wasp, function (sprite, othe
 })
 spriteutils.onSpriteKindUpdateInterval(SpriteKind.Enemy, 100, function (sprite) {
     timer.background(function () {
-        if (spriteutils.getSpritesWithin(SpriteKind.Projectile, 40, sprite).length > 0) {
-            sprite.follow(mySprite2, 0)
-            spriteutils.setVelocityAtAngle(sprite, 0 - spriteutils.angleFrom(sprite, spriteutils.getSpritesWithin(SpriteKind.Projectile, 40, sprite)._pickRandom()) + randint(-60, 60), 50)
-            pause(500)
-            sprite.follow(mySprite, 40)
+        if (spriteutils.getSpritesWithin(SpriteKind.Projectile, 80, sprite).length > 0) {
+            if (spriteutils.getSpritesWithin(SpriteKind.Wasp, 50, sprite).length > 0) {
+                spriteutils.getSpritesWithin(SpriteKind.Wasp, 50, sprite)._pickRandom().follow(spriteutils.getSpritesWithin(SpriteKind.Projectile, 80, sprite)._pickRandom())
+            } else {
+                sprite.follow(mySprite2, 0)
+                spriteutils.setVelocityAtAngle(sprite, 0 - spriteutils.angleFrom(sprite, spriteutils.getSpritesWithin(SpriteKind.Projectile, 40, sprite)._pickRandom()) + randint(-30, 30), 60)
+                pause(500)
+                sprite.follow(mySprite, 40)
+            }
         }
     })
 })
