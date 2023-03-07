@@ -108,6 +108,13 @@ statusbars.onZero(StatusBarKind.EnemyHealth, function (status) {
     sprites.destroy(status.spriteAttachedTo())
     sprites.destroy(status)
 })
+function Enable_movment (Bool: boolean) {
+    if (Bool) {
+        controller.moveSprite(mySprite, 80, 80)
+    } else {
+        controller.moveSprite(mySprite, 0, 0)
+    }
+}
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     setDir(r)
     r = true
@@ -122,6 +129,10 @@ scene.onOverlapTile(SpriteKind.Projectile, assets.tile`myTile0`, function (sprit
         }
     })
 })
+function Quest2 () {
+    tiles.setCurrentTilemap(tilemap`level4`)
+    tiles.placeOnTile(mySprite, tiles.getTileLocation(46, 11))
+}
 sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Player, function (sprite, otherSprite) {
     info.changeLifeBy(-1)
     PlayerHealth.value += -1
@@ -195,13 +206,6 @@ function startQuest () {
         `, SpriteKind.Player)
     mySprite2.setFlag(SpriteFlag.Ghost, true)
 }
-function Enable_movment (Bool: boolean) {
-    if (Bool) {
-        controller.moveSprite(mySprite, 80, 80)
-    } else {
-        controller.moveSprite(mySprite, 0, 0)
-    }
-}
 sprites.onOverlap(SpriteKind.Wasp, SpriteKind.Wasp, function (sprite, otherSprite) {
     sprite.x += randint(-3, 3)
     otherSprite.y += randint(-3, 3)
@@ -227,7 +231,7 @@ function ShowMenu1 () {
     if (story.checkLastAnswer("Enter Wasp territory")) {
         if (!(blockSettings.exists("1"))) {
             startQuest()
-            Quest1()
+            Quest2()
             Enable_movment(false)
             story.printCharacterText("Are you ready, " + blockSettings.readString("Name") + "? ")
             story.printCharacterText("You must cross the bridge and destroy the nest, but watch out for the Queen!")
@@ -287,12 +291,12 @@ let l = false
 let r = false
 let u = false
 let Wasp2: Sprite = null
-let mySprite2: Sprite = null
 let QueenHP: StatusBarSprite = null
 let Queen: Sprite = null
 let IsGameRunning = false
-let Quest = 0
 let Num = 0
+let Quest = 0
+let mySprite2: Sprite = null
 Num = 30
 music.play(music.createSong(assets.song`mySong`), music.PlaybackMode.LoopingInBackground)
 pause(100)
@@ -312,7 +316,7 @@ if (game.ask("Input a name?") || !(blockSettings.exists("Name"))) {
 ShowMenu1()
 game.onUpdateInterval(WaspRate, function () {
     if (IsGameRunning) {
-        if (tiles.getTilesByType(assets.tile`myTile0`).length > 0) {
+        if (tiles.getTilesByType(assets.tile`myTile0`).length > 0 && sprites.allOfKind(SpriteKind.Wasp).length < 70) {
             location1 = tiles.getTilesByType(assets.tile`myTile0`)._pickRandom()
             CreateWasp(location1.column, location1.row)
         }
