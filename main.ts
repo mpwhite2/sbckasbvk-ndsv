@@ -1,3 +1,4 @@
+controller.setRepeatDefault(0,100)
 namespace SpriteKind {
     export const Wasp = SpriteKind.create()
 }
@@ -81,23 +82,6 @@ spriteutils.onSpriteKindUpdateInterval(SpriteKind.Wasp, 100, function (sprite) {
         timer.after(500, function () {
             sprite.follow(mySprite, 50)
         })
-    }
-})
-controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (IsGameRunning) {
-        if (u == true) {
-            Fire(0, -200, assets.image`Vert`)
-        } else {
-            if (d == true) {
-                Fire(0, 200, assets.image`Vert`)
-            } else {
-                if (l == true) {
-                    Fire(-200, 0, assets.image`Hori`)
-                } else {
-                    Fire(200, 0, assets.image`Hori`)
-                }
-            }
-        }
     }
 })
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
@@ -216,6 +200,23 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
 })
 info.onLifeZero(function () {
     game.gameOver(false)
+})
+controller.A.onEvent(ControllerButtonEvent.Repeated, function () {
+    if (IsGameRunning) {
+        if (u == true) {
+            Fire(0, -200, assets.image`Vert`)
+        } else {
+            if (d == true) {
+                Fire(0, 200, assets.image`Vert`)
+            } else {
+                if (l == true) {
+                    Fire(-200, 0, assets.image`Hori`)
+                } else {
+                    Fire(200, 0, assets.image`Hori`)
+                }
+            }
+        }
+    }
 })
 function Quest1 () {
     tiles.setCurrentTilemap(tilemap`Enter`)
