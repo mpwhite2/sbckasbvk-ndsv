@@ -19,6 +19,11 @@
         "mimeType": "image/x-mkcd-f4",
         "displayName": "Hori"
     },
+    "image4": {
+        "data": "hwQQABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg4AAAAA4AAODuAAAAAADg4ODgAAAADg7u4AAAAAAO7u7vAAAADg7u7u7g4AAODu7u7uDgAAAO7u7vAAAAAA4O7uAAAAAAAODg4OAAAA4AAODuAAAAAAAA4OAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "Spider"
+    },
     "anim1": {
         "namespace": "myAnimations",
         "id": "anim1",

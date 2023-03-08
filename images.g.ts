@@ -79,6 +79,25 @@ namespace myImages {
 . . . . . . . . . . . . . . . . 
 . . . . . . . . . . . . . . . . 
 `;
+            case "image4":
+            case "Spider":return img`
+. . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . 
+. . . e . . . e e . . . e . . . 
+. . . . e . e e e e . e . . . . 
+. . . . . e e e e e e . . . . . 
+. . e e e e e e e e e e e e . . 
+. . . . . e e e e e e . . . . . 
+. . e e e e e e e e e e e e . . 
+. . . . . e e e e e e . . . . . 
+. . . . e . . e e . . e . . . . 
+. . . e . . f e e f . . e . . . 
+. . . . . . . e e . . . . . . . 
+. . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . 
+`;
         }
         return null;
     })

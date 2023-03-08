@@ -1,6 +1,6 @@
-controller.setRepeatDefault(0,100)
 namespace SpriteKind {
     export const Wasp = SpriteKind.create()
+    export const Spider = SpriteKind.create()
 }
 function CreateQueen (Col: number, Row: number) {
     Queen = sprites.create(img`
@@ -38,30 +38,51 @@ function CreateWasp (C: number, R: number) {
     tiles.placeOnTile(Wasp2, tiles.getTileLocation(C, R))
     Wasp2.follow(mySprite2, 50)
     Wasp2.setFlag(SpriteFlag.GhostThroughTiles, true)
-    characterAnimations.loopFrames(
-    Wasp2,
-    assets.animation`Flying up or down`,
-    100,
-    characterAnimations.rule(Predicate.MovingUp)
-    )
-    characterAnimations.loopFrames(
-    Wasp2,
-    assets.animation`Flying up or down`,
-    100,
-    characterAnimations.rule(Predicate.MovingDown)
-    )
-    characterAnimations.loopFrames(
-    Wasp2,
-    assets.animation`Flying left or right`,
-    500,
-    characterAnimations.rule(Predicate.MovingRight)
-    )
-    characterAnimations.loopFrames(
-    Wasp2,
-    assets.animation`Flying left or right`,
-    500,
-    characterAnimations.rule(Predicate.MovingLeft)
-    )
+    if (Math.percentChance(5)) {
+        Wasp2.setImage(img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . f f . . . . . . . 
+            . . . . . . . f f . . . . . . . 
+            . . . . . . 4 f f 4 . . . . . . 
+            . . . . 4 4 4 f f 4 4 4 . . . . 
+            . . . . . . 4 f f 4 . . . . . . 
+            . . . . . . . f f . . . . . . . 
+            . . . . . . . f f . . . . . . . 
+            . . . . . . f . . f . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            `)
+    } else {
+        characterAnimations.loopFrames(
+        Wasp2,
+        assets.animation`Flying up or down`,
+        100,
+        characterAnimations.rule(Predicate.MovingUp)
+        )
+        characterAnimations.loopFrames(
+        Wasp2,
+        assets.animation`Flying up or down`,
+        100,
+        characterAnimations.rule(Predicate.MovingDown)
+        )
+        characterAnimations.loopFrames(
+        Wasp2,
+        assets.animation`Flying left or right`,
+        500,
+        characterAnimations.rule(Predicate.MovingRight)
+        )
+        characterAnimations.loopFrames(
+        Wasp2,
+        assets.animation`Flying left or right`,
+        500,
+        characterAnimations.rule(Predicate.MovingLeft)
+        )
+    }
 }
 function setDir (dir: boolean) {
     u = false
@@ -74,6 +95,12 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     setDir(u)
     u = true
 })
+controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
+    if (blockSettings.readNumber("A") > 0 && IsGameRunning) {
+        CreateSpider(mySprite.tilemapLocation().column, mySprite.tilemapLocation().row)
+        blockSettings.writeNumber("A", blockSettings.readNumber("A") + -1)
+    }
+})
 spriteutils.onSpriteKindUpdateInterval(SpriteKind.Wasp, 100, function (sprite) {
     sprite.follow(mySprite2, 50)
     if (spriteutils.getSpritesWithin(SpriteKind.Projectile, 60, sprite).length > 0) {
@@ -82,8 +109,24 @@ spriteutils.onSpriteKindUpdateInterval(SpriteKind.Wasp, 100, function (sprite) {
         timer.after(500, function () {
             sprite.follow(mySprite, 50)
         })
+    } else {
+        if (spriteutils.getSpritesWithin(SpriteKind.Spider, 50, sprite).length > 0) {
+            sprite.follow(spriteutils.getSpritesWithin(SpriteKind.Wasp, 50, sprite)._pickRandom(), 50)
+        }
     }
 })
+spriteutils.onSpriteKindUpdateInterval(SpriteKind.Spider, 500, function (sprite) {
+    if (spriteutils.getSpritesWithin(SpriteKind.Wasp, 40, sprite).length > 0) {
+        sprite.follow(spriteutils.getSpritesWithin(SpriteKind.Wasp, 40, sprite)._pickRandom())
+    }
+})
+sprites.onOverlap(SpriteKind.Spider, SpriteKind.Enemy, function (sprite, otherSprite) {
+    sprites.destroy(sprite)
+})
+function CreateSpider (Col: number, Row: number) {
+    Spider = sprites.create(assets.image`Spider`, SpriteKind.Spider)
+    tiles.placeOnTile(Spider, tiles.getTileLocation(Col, Row))
+}
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     setDir(l)
     l = true
@@ -198,6 +241,10 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
     setDir(d)
     d = true
 })
+scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile5`, function (sprite, location) {
+    blockSettings.writeNumber("A", blockSettings.readNumber("A") + 10)
+    tiles.setTileAt(location, assets.tile`myTile1`)
+})
 info.onLifeZero(function () {
     game.gameOver(false)
 })
@@ -250,6 +297,30 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Wasp, function (sprite, othe
     info.changeScoreBy(1)
     music.play(music.randomizeSound(music.createSoundEffect(WaveShape.Sine, 1, 2381, 0, 140, 500, SoundExpressionEffect.Warble, InterpolationCurve.Curve)), music.PlaybackMode.InBackground)
 })
+sprites.onOverlap(SpriteKind.Spider, SpriteKind.Wasp, function (sprite, otherSprite) {
+    if (otherSprite.image.equals(img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . f f . . . . . . . 
+        . . . . . . . f f . . . . . . . 
+        . . . . . . 4 f f 4 . . . . . . 
+        . . . . 4 4 4 f f 4 4 4 . . . . 
+        . . . . . . 4 f f 4 . . . . . . 
+        . . . . . . . f f . . . . . . . 
+        . . . . . . . f f . . . . . . . 
+        . . . . . . f . . f . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `)) {
+        sprites.destroy(sprite)
+    } else {
+        sprites.destroy(otherSprite)
+    }
+})
 spriteutils.onSpriteKindUpdateInterval(SpriteKind.Enemy, 100, function (sprite) {
     timer.background(function () {
         if (sprites.allOfKind(SpriteKind.Wasp).length == 0) {
@@ -285,6 +356,7 @@ let TargetY = 0
 let TargetX = 0
 let projectile: Sprite = null
 let PlayerHealth: StatusBarSprite = null
+let Spider: Sprite = null
 let mySprite: Sprite = null
 let dir = false
 let d = false
@@ -296,8 +368,10 @@ let QueenHP: StatusBarSprite = null
 let Queen: Sprite = null
 let IsGameRunning = false
 let Num = 0
-let Quest = 0
+blockSettings.writeNumber("A", 5)
 let mySprite2: Sprite = null
+let Quest = 0
+controller.setRepeatDefault(0,200)
 Num = 30
 music.play(music.createSong(assets.song`mySong`), music.PlaybackMode.LoopingInBackground)
 pause(100)
