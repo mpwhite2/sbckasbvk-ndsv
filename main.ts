@@ -1,6 +1,7 @@
 namespace SpriteKind {
     export const Wasp = SpriteKind.create()
     export const Spider = SpriteKind.create()
+    export const Egg = SpriteKind.create()
 }
 function CreateQueen (Col: number, Row: number) {
     Queen = sprites.create(img`
@@ -115,6 +116,10 @@ spriteutils.onSpriteKindUpdateInterval(SpriteKind.Wasp, 100, function (sprite) {
         }
     }
 })
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Egg, function (sprite, otherSprite) {
+    sprites.destroy(otherSprite)
+    blockSettings.writeNumber("A", 5 + blockSettings.readNumber("A"))
+})
 spriteutils.onSpriteKindUpdateInterval(SpriteKind.Spider, 500, function (sprite) {
     if (spriteutils.getSpritesWithin(SpriteKind.Wasp, 40, sprite).length > 0) {
         sprite.follow(spriteutils.getSpritesWithin(SpriteKind.Wasp, 40, sprite)._pickRandom())
@@ -124,8 +129,8 @@ sprites.onOverlap(SpriteKind.Spider, SpriteKind.Enemy, function (sprite, otherSp
     sprites.destroy(sprite)
 })
 function CreateSpider (Col: number, Row: number) {
-    Spider = sprites.create(assets.image`Spider`, SpriteKind.Spider)
-    tiles.placeOnTile(Spider, tiles.getTileLocation(Col, Row))
+    Spider2 = sprites.create(assets.image`Spider`, SpriteKind.Spider)
+    tiles.placeOnTile(Spider2, tiles.getTileLocation(Col, Row))
 }
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     setDir(l)
@@ -159,6 +164,7 @@ scene.onOverlapTile(SpriteKind.Projectile, assets.tile`myTile0`, function (sprit
 function Quest2 () {
     tiles.setCurrentTilemap(tilemap`level4`)
     tiles.placeOnTile(mySprite, tiles.getTileLocation(46, 11))
+    Popeggs(4)
 }
 sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Player, function (sprite, otherSprite) {
     info.changeLifeBy(-1)
@@ -241,10 +247,6 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
     setDir(d)
     d = true
 })
-scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile5`, function (sprite, location) {
-    blockSettings.writeNumber("A", blockSettings.readNumber("A") + 10)
-    tiles.setTileAt(location, assets.tile`myTile1`)
-})
 info.onLifeZero(function () {
     game.gameOver(false)
 })
@@ -291,6 +293,10 @@ function ShowMenu1 () {
         }
     }
 }
+scene.onOverlapTile(SpriteKind.Wasp, assets.tile`myTile0`, function (sprite, location) {
+    blockSettings.writeNumber("A", blockSettings.readNumber("A") + 10)
+    tiles.setTileAt(location, assets.tile`myTile1`)
+})
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Wasp, function (sprite, otherSprite) {
     sprites.destroy(sprite)
     sprites.destroy(otherSprite, effects.disintegrate, 500)
@@ -350,13 +356,37 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Wasp, function (sprite, otherSpr
     info.changeLifeBy(-1)
     PlayerHealth.value += -1
 })
+function Popeggs (Eggs: number) {
+    for (let index = 0; index < Eggs; index++) {
+        mySprite3 = sprites.create(img`
+            6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 
+            6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 
+            6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 
+            6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 
+            6 6 6 6 6 6 1 1 1 6 6 6 6 6 6 6 
+            6 6 6 6 6 6 1 1 1 1 1 6 6 6 6 6 
+            6 6 6 6 6 1 1 1 1 1 1 6 6 6 6 6 
+            6 6 6 6 6 1 1 1 1 1 1 6 6 6 6 6 
+            6 6 6 6 1 1 1 1 1 1 1 6 6 6 6 6 
+            6 6 6 6 1 1 1 1 1 1 1 6 6 6 6 6 
+            6 6 6 6 1 1 1 1 1 1 1 1 6 6 6 6 
+            6 6 6 6 1 1 1 1 1 1 1 1 6 6 6 6 
+            6 6 6 6 6 1 1 1 1 1 1 6 6 6 6 6 
+            6 6 6 6 6 6 1 1 1 1 6 6 6 6 6 6 
+            6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 
+            6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 
+            `, SpriteKind.Egg)
+        tiles.placeOnRandomTile(mySprite3, tiles.tileImageAtLocation(tiles.getTileLocation(1, 1)))
+    }
+}
 let location1: tiles.Location = null
+let mySprite3: Sprite = null
 let WaspRate = 0
 let TargetY = 0
 let TargetX = 0
 let projectile: Sprite = null
 let PlayerHealth: StatusBarSprite = null
-let Spider: Sprite = null
+let Spider2: Sprite = null
 let mySprite: Sprite = null
 let dir = false
 let d = false
@@ -368,9 +398,9 @@ let QueenHP: StatusBarSprite = null
 let Queen: Sprite = null
 let IsGameRunning = false
 let Num = 0
-blockSettings.writeNumber("A", 5)
-let mySprite2: Sprite = null
 let Quest = 0
+let mySprite2: Sprite = null
+blockSettings.writeNumber("A", 0)
 controller.setRepeatDefault(0,200)
 Num = 30
 music.play(music.createSong(assets.song`mySong`), music.PlaybackMode.LoopingInBackground)
@@ -378,20 +408,23 @@ pause(100)
 if (controller.B.isPressed()) {
     story.showPlayerChoices("Reset data?", "No! Keep my data!")
     if (story.checkLastAnswer("Reset data?")) {
+    	
+    }
+}
+Quest = null
+IsGameRunning = false
+if (game.ask("Input a name? R = reset ") || !(blockSettings.exists("Name"))) {
+    blockSettings.writeString("Name", game.askForString("Please input a name", 12))
+    if (blockSettings.readString("Name") == "R") {
         color.startFade(color.Black, color.Arcade, 1000)
         blockSettings.clear()
         game.reset()
     }
 }
-Quest = null
-IsGameRunning = false
-if (game.ask("Input a name?") || !(blockSettings.exists("Name"))) {
-    blockSettings.writeString("Name", game.askForString("Please input a name", 12))
-}
 ShowMenu1()
 game.onUpdateInterval(WaspRate, function () {
     if (IsGameRunning) {
-        if (tiles.getTilesByType(assets.tile`myTile0`).length > 0 && sprites.allOfKind(SpriteKind.Wasp).length < 70) {
+        if (tiles.getTilesByType(assets.tile`myTile0`).length > 0 && sprites.allOfKind(SpriteKind.Wasp).length < 40) {
             location1 = tiles.getTilesByType(assets.tile`myTile0`)._pickRandom()
             CreateWasp(location1.column, location1.row)
         }

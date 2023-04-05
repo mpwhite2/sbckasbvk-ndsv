@@ -1,5 +1,5 @@
 {
-    "name": "sbckasbvk nds'v",
+    "name": "wasps",
     "description": "",
     "dependencies": {
         "device": "*",
@@ -27,7 +27,7 @@
         "test.ts"
     ],
     "targetVersions": {
-        "target": "1.12.24",
+        "target": "1.12.26",
         "targetId": "arcade"
     },
     "supportedTargets": [
