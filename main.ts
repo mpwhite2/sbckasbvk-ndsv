@@ -273,6 +273,26 @@ function Quest1 () {
     Quest = 1
     blockSettings.writeNumber("1", 1)
 }
+function ShowMenu2 () {
+    story.showPlayerChoices("Raid the wasp dungeons", "More Quests will appear here soon")
+    if (story.checkLastAnswer("More Quests will appear here soon")) {
+        story.showPlayerChoices("Raid the wasp dungeons", "More Quests will appear here soon")
+    }
+    if (story.checkLastAnswer("Enter Wasp territory")) {
+        if (!(blockSettings.exists("1"))) {
+            startQuest()
+            Quest2()
+            Enable_movment(false)
+            story.printCharacterText("Are you ready, " + blockSettings.readString("Name") + "? ")
+            story.printCharacterText("Enter the dungeon and collect spider eggs;If you dare!")
+            Enable_movment(true)
+        } else {
+            story.showPlayerChoices("Raid the wasp dungeons", "More Quests will appear here soon")
+            game.reset()
+            ShowMenu1()
+        }
+    }
+}
 function ShowMenu1 () {
     story.showPlayerChoices("Enter Wasp territory", "More Quests will appear here soon")
     if (story.checkLastAnswer("More Quests will appear here soon")) {
@@ -281,7 +301,7 @@ function ShowMenu1 () {
     if (story.checkLastAnswer("Enter Wasp territory")) {
         if (!(blockSettings.exists("1"))) {
             startQuest()
-            Quest2()
+            Quest1()
             Enable_movment(false)
             story.printCharacterText("Are you ready, " + blockSettings.readString("Name") + "? ")
             story.printCharacterText("You must cross the bridge and destroy the nest, but watch out for the Queen!")
@@ -398,11 +418,12 @@ let QueenHP: StatusBarSprite = null
 let Queen: Sprite = null
 let IsGameRunning = false
 let Num = 0
-let Quest = 0
 let mySprite2: Sprite = null
+let Quest = 0
 blockSettings.writeNumber("A", 0)
 controller.setRepeatDefault(0,200)
 Num = 30
+blockSettings.writeNumber("Quest", 1)
 music.play(music.createSong(assets.song`mySong`), music.PlaybackMode.LoopingInBackground)
 pause(100)
 if (controller.B.isPressed()) {
@@ -421,7 +442,11 @@ if (game.ask("Input a name? R = reset ") || !(blockSettings.exists("Name"))) {
         game.reset()
     }
 }
-ShowMenu1()
+if (blockSettings.readNumber("Quest") == 1) {
+    ShowMenu2()
+} else if (blockSettings.readNumber("Quest") == 2) {
+    ShowMenu1()
+}
 game.onUpdateInterval(WaspRate, function () {
     if (IsGameRunning) {
         if (tiles.getTilesByType(assets.tile`myTile0`).length > 0 && sprites.allOfKind(SpriteKind.Wasp).length < 40) {
@@ -440,6 +465,7 @@ game.onUpdateInterval(2000, function () {
 })
 game.onUpdateInterval(1000, function () {
     if (IsGameRunning && sprites.allOfKind(SpriteKind.Wasp).length + sprites.allOfKind(SpriteKind.Enemy).length == 0) {
+        blockSettings.writeNumber("Quest", blockSettings.readNumber("Quest") + 1)
         game.reset()
     }
 })
